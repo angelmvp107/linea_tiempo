@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Línea del Tiempo - Polímeros</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #8B4A47 0%, #A0522D 50%, #F5E6D3 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .authors {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: inline-block;
+        }
+
+        .timeline {
+            position: relative;
+            margin: 4rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #8B4A47, #A0522D, #D2B48C);
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 3rem 0;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .timeline-item.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .timeline-item:nth-child(odd) .content {
+            left: 0;
+            right: 55%;
+        }
+
+        .timeline-item:nth-child(even) .content {
+            left: 55%;
+            right: 0;
+        }
+
+        .content {
+            position: relative;
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(245,230,211,0.5);
+            margin-top: 2rem;
+        }
+
+        .content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+
+
+        .year {
+            position: absolute;
+            left: 50%;
+            top: -15px;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #8B4A47, #A0522D);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(139,74,71,0.4);
+            z-index: 10;
+            border: 3px solid #F5E6D3;
+        }
+
+        .content h3 {
+            color: #2d3748;
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+        }
+
+        .content p {
+            color: #4a5568;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .scientist {
+            display: inline-block;
+            background: linear-gradient(135deg, #8B4A47, #A0522D);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 0.8rem 2rem;
+            margin: 0 0.5rem;
+            border-radius: 50px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn:hover, .btn.active {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+
+        .filter-tag {
+            display: inline-block;
+            background: rgba(139,74,71,0.2);
+            color: #8B4A47;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin: 0.2rem;
+            border: 1px solid rgba(139,74,71,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 2rem;
+            }
+
+            .timeline-item:nth-child(odd) .content,
+            .timeline-item:nth-child(even) .content {
+                left: 4rem;
+                right: 0;
+            }
+
+            .year {
+                left: 2rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(to right, #8B4A47, #A0522D, #D2B48C);
+            transition: width 0.3s ease;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <div class="container">
+        <header class="header">
+            <h1>Historia de los Polímeros</h1>
+            <p>Un viaje a través del tiempo explorando los descubrimientos más importantes en la ciencia de los polímeros</p>
+            <div class="authors">
+                <strong>Autores:</strong> Pablo Nicolás García Huerta, Ángel Antonio Ruiz García, Andrés Guadalupe García Franco<br>
+                <strong>Institución:</strong> UAQ - FI
+            </div>
+        </header>
+
+        <div class="controls">
+            <button class="btn active" onclick="filterTimeline('all')">Todo</button>
+            <button class="btn" onclick="filterTimeline('natural')">Naturales</button>
+            <button class="btn" onclick="filterTimeline('synthetic')">Sintéticos</button>
+            <button class="btn" onclick="filterTimeline('industrial')">Industriales</button>
+        </div>
+
+        <div class="timeline" id="timeline">
+            <div class="timeline-item" data-category="natural">
+                <div class="year">1838</div>
+                <div class="content">
+                    <h3>Descubrimiento del Poliestireno</h3>
+                    <p>Eduard Simon descubre accidentalmente el poliestireno al destilar estoraque, aunque no comprende completamente su naturaleza química.</p>
+                    <span class="scientist">Eduard Simon</span>
+                    <div class="filter-tag">Descubrimiento</div>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-category="natural">
+                <div class="year">1839</div>
+                <div class="content">
+                    <h3>Vulcanización del Caucho</h3>
+                    <p>Charles Goodyear desarrolla el proceso de vulcanización, transformando el caucho natural en un material más duradero y versátil.</p>
+                    <span class="scientist">Charles Goodyear</span>
+                    <div class="filter-tag">Proceso</div>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-category="synthetic">
+                <div class="year">1869</div>
+                <div class="content">
+                    <h3>Primer Plástico Sintético</h3>
+                    <p>John Wesley Hyatt crea la celuloide, el primer plástico sintético comercialmente exitoso, inicialmente como sustituto del marfil.</p>
+                    <span class="scientist">John Wesley Hyatt</span>
+                    <div class="filter-tag">Sintético</div>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-category="synthetic">
+                <div class="year">1907</div>
+                <div class="content">
+                    <h3>Invención de la Baquelita</h3>
+                    <p>Leo Baekeland desarrolla la baquelita, el primer plástico completamente sintético, revolucionando la industria de materiales.</p>
+                    <span class="scientist">Leo Baekeland</span>
+                    <div class="filter-tag">Termoestable</div>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-category="industrial">
+                <div class="year">1920</div>
+                <div class="content">
+                    <h3>Teoría de Macromoléculas</h3>
+                    <p>Hermann Staudinger propone que los polímeros están compuestos por largas cadenas de moléculas, estableciendo las bases teóricas modernas.</p>
+                    <span class="scientist">Hermann Staudinger</span>
+                    <div class="filter-tag">Teoría</div>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-category="industrial">
+                <div class="year">1935</div>
+                <div class="content">
+                    <h3>Descubrimiento del Nylon</h3>
+                    <p>Wallace Carothers y su equipo en DuPont desarrollan el nylon, la primera fibra sintética completamente artificial.</p>
+                    <span class="scientist">Wallace Carothers</span>
+                    <div class="filter-tag">Fibra Sintética</div>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-category="industrial">
+                <div class="year">1938</div>
+                <div class="content">
+                    <h3>Invención del Teflón</h3>
+                    <p>Roy Plunkett descubre accidentalmente el tetrafluroetileno polimerizado (Teflón), conocido por su extraordinaria resistencia química.</p>
+                    <span class="scientist">Roy Plunkett</span>
+                    <div class="filter-tag">Antiadherente</div>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-category="industrial">
+                <div class="year">1953</div>
+                <div class="content">
+                    <h3>Catalizadores Ziegler-Natta</h3>
+                    <p>Karl Ziegler y Giulio Natta desarrollan catalizadores que permiten controlar la estructura de los polímeros, revolucionando la producción de plásticos.</p>
+                    <span class="scientist">Ziegler & Natta</span>
+                    <div class="filter-tag">Catálisis</div>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-category="industrial">
+                <div class="year">1965</div>
+                <div class="content">
+                    <h3>Kevlar</h3>
+                    <p>Stephanie Kwolek desarrolla el Kevlar, una fibra sintética cinco veces más resistente que el acero por peso, utilizada en chalecos antibalas.</p>
+                    <span class="scientist">Stephanie Kwolek</span>
+                    <div class="filter-tag">Alta Resistencia</div>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-category="synthetic">
+                <div class="year">1980s</div>
+                <div class="content">
+                    <h3>Polímeros Conductores</h3>
+                    <p>Desarrollo de polímeros conductores que pueden conducir electricidad, abriendo nuevas aplicaciones en electrónica y energía.</p>
+                    <span class="scientist">Heeger, MacDiarmid, Shirakawa</span>
+                    <div class="filter-tag">Conductividad</div>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-category="synthetic">
+                <div class="year">2000s</div>
+                <div class="content">
+                    <h3>Polímeros Biodegradables</h3>
+                    <p>Desarrollo intensivo de polímeros biodegradables y biocompatibles para aplicaciones médicas y ambientales sostenibles.</p>
+                    <span class="scientist">Investigación Global</span>
+                    <div class="filter-tag">Sostenibilidad</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentFilter = 'all';
+        
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTimeline();
+            setupScrollEffects();
+            setupProgressBar();
+        });
+
+        // Inicializar animaciones de la línea de tiempo
+        function initializeTimeline() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate');
+                    }
+                });
+            }, {
+                threshold: 0.2,
+                rootMargin: '0px 0px -100px 0px'
+            });
+
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            timelineItems.forEach(item => {
+                observer.observe(item);
+            });
+        }
+
+        // Configurar efectos de scroll
+        function setupScrollEffects() {
+            let ticking = false;
+            
+            function updateScrollEffects() {
+                const scrolled = window.pageYOffset;
+                const rate = scrolled * -0.5;
+                
+                // Parallax sutil en el header
+                const header = document.querySelector('.header');
+                if (header) {
+                    header.style.transform = `translateY(${rate * 0.3}px)`;
+                }
+                
+                ticking = false;
+            }
+
+            window.addEventListener('scroll', () => {
+                if (!ticking) {
+                    requestAnimationFrame(updateScrollEffects);
+                    ticking = true;
+                }
+            });
+        }
+
+        // Configurar barra de progreso
+        function setupProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            
+            window.addEventListener('scroll', () => {
+                const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (window.scrollY / windowHeight) * 100;
+                progressBar.style.width = scrolled + '%';
+            });
+        }
+
+        // Función para filtrar la línea de tiempo
+        function filterTimeline(category) {
+            currentFilter = category;
+            
+            // Actualizar botones activos
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filtrar elementos
+            const items = document.querySelectorAll('.timeline-item');
+            
+            items.forEach(item => {
+                item.style.transition = 'all 0.5s ease';
+                
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = 'block';
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateY(30px)';
+                    
+                    // Animar entrada con delay
+                    setTimeout(() => {
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateY(0)';
+                    }, 100);
+                } else {
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateY(-30px)';
+                    
+                    setTimeout(() => {
+                        item.style.display = 'none';
+                    }, 500);
+                }
+            });
+        }
+
+        // Efectos adicionales para mejorar la experiencia
+        document.querySelectorAll('.content').forEach(content => {
+            content.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            content.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Navegación suave
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            const timeline = document.querySelector('.timeline');
+            
+            if (timeline) {
+                const timelineTop = timeline.offsetTop;
+                const timelineHeight = timeline.offsetHeight;
+                const windowHeight = window.innerHeight;
+                
+                if (scrolled > timelineTop - windowHeight / 2 && 
+                    scrolled < timelineTop + timelineHeight) {
+                    document.body.style.background = 'linear-gradient(135deg, #8B4A47 0%, #A0522D 50%, #F5E6D3 100%)';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
